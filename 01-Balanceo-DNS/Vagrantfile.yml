@@ -1,0 +1,22 @@
+---
+prefix: 'lb1'
+
+servers:
+  - name: dns
+    box: ubuntu/jammy64
+    ram: 512
+    ip: 172.31.0.10
+    mask: 255.255.0.0
+  
+  - name: nodo1
+    box: ubuntu/jammy64
+    ram: 512
+    ip: 172.31.0.11
+    mask: 255.255.0.0
+  
+  - name: nodo2
+    box: ubuntu/jammy64
+    ram: 512
+    ip: 172.31.0.12
+    mask: 255.255.0.0
+
