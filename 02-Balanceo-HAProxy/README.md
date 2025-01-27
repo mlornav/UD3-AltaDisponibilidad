@@ -17,7 +17,7 @@ En este caso, todos los clientes acceden al clúster a través del nodo balancea
 
 ## Utilización básica del escenario
 
-### Desplegar y configurar el escenario base
+#### 1) Desplegar y configurar el escenario base
 
 ~~~
 vagrant up
@@ -25,20 +25,20 @@ ssh-add ~/.vagrant.d/insecure_private_key
 ansible-playbook site.yml
 ~~~
 
-### Utilizar el servidor DNS del escenario
+#### 2) Utilizar el servidor DNS del escenario
 
 ~~~
 sudo ./utils/dns-escenario.sh
 ~~~
 
-### Acceder al servidor DNS + Balanceador
+#### 3) Acceder al servidor DNS + Balanceador
 
 ~~~
 vagrant ssh balanceador
 ~~~
 
 
-## Ejercicio 1. Configuración básica de HAProxy
+## Configuración e iteración con HAProxy
 
 En primer lugar, instalamos **HAProxy**:
 
@@ -251,13 +251,6 @@ listen  stats
 
 !!! Nota
 	Para consultar las estadísticas, accederemos a la dirección <http://balanceador.example.com:1936/haproxy?stats> (Usuario: *admin*, Clave: *entrar*).
-
-
-## Ejercicio 2. Configuración de un servidor de respaldo
-
-Actualiza el escenario para añadir un nuevo nodo llamado **respaldo** que actúe como servidor de *backup* en el caso de que los dos nodos principales fallen.
-
-Comprueba el correcto funcionamiento del clúster: mientras al haya funcionando al menos uno de los dos nodos principales, el balanceador no redirigirá el tráfico al servidor de respaldo. En el momento en que todos los nodos principales dejen de funcionar, el balanceador hará uso del nodo de respaldo.
 
 ### Desechar el escenario correctamente
 
