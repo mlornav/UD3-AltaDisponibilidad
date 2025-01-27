@@ -31,13 +31,10 @@ ansible-playbook site.yml
 sudo ./utils/dns-escenario.sh
 ~~~
 
-### Desechar el escenario correctamente
-
-Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
+### Acceder al servidor DNS + Balanceador de configurar el escenario
 
 ~~~
-vagrant destroy -f
-sudo ./utils/dns-sistema.sh
+vagrant ssh dns
 ~~~
 
 
@@ -261,3 +258,12 @@ listen  stats
 Actualiza el escenario para añadir un nuevo nodo llamado **respaldo** que actúe como servidor de *backup* en el caso de que los dos nodos principales fallen.
 
 Comprueba el correcto funcionamiento del clúster: mientras al haya funcionando al menos uno de los dos nodos principales, el balanceador no redirigirá el tráfico al servidor de respaldo. En el momento en que todos los nodos principales dejen de funcionar, el balanceador hará uso del nodo de respaldo.
+
+### Desechar el escenario correctamente
+
+Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
+
+~~~
+vagrant destroy -f
+sudo ./utils/dns-sistema.sh
+~~~
