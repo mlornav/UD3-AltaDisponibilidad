@@ -31,10 +31,10 @@ ansible-playbook site.yml
 sudo ./utils/dns-escenario.sh
 ~~~
 
-### Acceder al servidor DNS + Balanceador de configurar el escenario
+### Acceder al servidor DNS + Balanceador
 
 ~~~
-vagrant ssh dns
+vagrant ssh balanceador
 ~~~
 
 
