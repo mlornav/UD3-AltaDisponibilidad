@@ -1,0 +1,11 @@
+---
+
+# Operaciones comunes sobre todos los nodos
+- import_playbook: playbook/common.yml
+
+# Configuración específica de los servidores DNS
+- import_playbook: playbook/dns.yml
+
+# Configuración específica de los servidores HTTP
+- import_playbook: playbook/http.yml
+

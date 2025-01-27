@@ -1,0 +1,67 @@
+- hosts: balanceador
+
+  gather_facts: true
+  remote_user: vagrant
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  # Desactivar ejecución en paralelo para evitar problemas con Vagrant-Cachier
+  serial: 1
+
+
+  tasks:
+    # Instalar BIND9
+    - name: Instalar servicio DNS
+      apt: pkg=bind9 state=present
+      notify: start bind
+
+    # Configuración general
+    - name: Configurar zonas
+      template: src=bind/named.conf.local.j2
+        dest=/etc/bind/named.conf.local
+        owner=root group=root mode=0644
+      notify: restart bind
+
+    - name: Copiar archivo de zonas rfc1918
+      copy: src=bind/zones.rfc1918
+        dest=/etc/bind/zones.rfc1918
+        owner=root group=root mode=0644
+      notify: restart bind
+
+    - name: Configurar named.conf.options
+      copy: src=bind/named.conf.options
+        dest=/etc/bind/named.conf.options
+        owner=root group=root mode=0644
+      notify: restart bind
+
+    # Configurar zonas directa e inversa
+    - name: Configurar registros de resolución directa
+      template: src=bind/db.directa.j2
+        dest=/var/lib/bind/db.{{ dominio }}
+        owner=root group=root mode=0644
+      notify: restart bind
+
+    - name: Configurar registros de resolución inversa
+      template: src=bind/db.inversa.j2
+        dest=/var/lib/bind/db.{{ red }}
+        owner=root group=root mode=0644
+      notify: restart bind
+
+    # Configurar resolvconf para utilizar nuestro DNS
+    - name: Eliminar enlace simbólico a /etc/resolv.conf
+      file: path=/etc/resolv.conf state=absent
+
+    - name: Configurar resolvconf para utilizar nuestro DNS
+      template: src=bind/resolv.conf.j2
+        dest=/etc/resolv.conf
+        owner=root group=root mode=0644
+
+
+  handlers:
+    - name: start bind
+      systemd: name=bind9 state=started
+
+    - name: restart bind
+      systemd: name=bind9 state=restarted
+

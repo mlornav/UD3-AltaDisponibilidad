@@ -1,0 +1,21 @@
+$TTL 1d
+$ORIGIN {{ dominio }}.
+
+
+@	IN	SOA	dns	admin	(
+	1	;serial
+	6h	;refresh
+	1h	;retry
+	1w	;expire
+	6h	;nxdomain
+)
+
+
+@		IN	NS	dns
+
+balanceador		IN	CNAME	dns
+
+dns				IN	A	172.31.0.10
+nodo1			IN	A	172.31.0.11
+nodo2			IN	A	172.31.0.12
+
