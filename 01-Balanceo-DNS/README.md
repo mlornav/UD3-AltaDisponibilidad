@@ -38,7 +38,7 @@ ansible-playbook site.yml
 sudo ./utils/dns-escenario.sh
 ~~~
 
-### 3) Terminar de configurar el escenario
+### 3) Configuracion del escenario
 
 Sigue los pasos indicados a continuación para terminar de configurar el escenario de modo que quede completamente funcional.
 
@@ -84,7 +84,7 @@ wget -q http://www.example.com -O - | grep nodo
 
 También puede verse de forma mucho más clara a través del navegador, para lo cual es necesario ir a la siguiente dirección <http://www.example.com> y podremos comprobar como se balancean las peticiones entre los dos servidores web **nodo1** y **nodo2** (es necesario forzar la recarga, por ejemplo, con CTRL+F5).
 
-### 4) Desechar el escenario correctamente
+### 5) Desechar el escenario correctamente
 
 Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
 
