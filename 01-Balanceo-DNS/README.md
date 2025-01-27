@@ -21,10 +21,9 @@ www.example.com.	IN	A	172.31.0.12
 
 Cada vez que se hace una consulta, el servidor DNS va rotando el orden de las respuestas. Esto hace que los clientes se vayan conectando alternativamente a un servidor u otro, consiguiendo así que la carga de trabajo se reparta entre los dos.
 
+## Utilización básica del escenario
 
-## Utilización del escenario
-
-### 1) Desplegar y configurar el escenario
+#### 1) Desplegar y configurar el escenario base
 
 ~~~
 vagrant up
@@ -32,21 +31,21 @@ ssh-add ~/.vagrant.d/insecure_private_key
 ansible-playbook site.yml
 ~~~
 
-### 2) Utilizar el servidor DNS del escenario
+#### 2) Utilizar el servidor DNS del escenario
 
 ~~~
 sudo ./utils/dns-escenario.sh
 ~~~
 
-### 3) Configuracion del escenario
-
-Sigue los pasos indicados a continuación para terminar de configurar el escenario de modo que quede completamente funcional.
-
-Para configurar el DNS Round Robin, accede al servidor DNS:
+#### 3) Acceder al servidor DNS + Balanceador
 
 ~~~
-vagrant ssh dns
+vagrant ssh balanceador
 ~~~
+
+## Realizacion e iteracion con el escenario
+
+#### 1) Configuración del DNS (Round Robin)
 
 Cambia la configuración de BIND para asociar el mismo nombre (**www.example.com**) a dos direcciones IP distintas (las de los servidores web). Para ello edita `/var/lib/bind/db.example.com` y añade los registros:
 
@@ -61,8 +60,7 @@ Reinicia el servicio DNS para que utilice la nueva configuración:
 systemctl restart bind9
 ~~~
 
-
-### 4) Interactuar con el escenario
+#### 2) Interactuar con el escenario
 
 Si no ha habido errores durante la ejecución de los playbooks y las operaciones manuales de configuración son correctas, se puede comprobar que se realiza el balanceo de **www.example.com** entre el **nodo1** y el **nodo2**, repitiendo la consulta DNS con `dig`:
 
@@ -84,7 +82,7 @@ wget -q http://www.example.com -O - | grep nodo
 
 También puede verse de forma mucho más clara a través del navegador, para lo cual es necesario ir a la siguiente dirección <http://www.example.com> y podremos comprobar como se balancean las peticiones entre los dos servidores web **nodo1** y **nodo2** (es necesario forzar la recarga, por ejemplo, con CTRL+F5).
 
-### 5) Desechar el escenario correctamente
+## Desechar el escenario correctamente
 
 Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
 
