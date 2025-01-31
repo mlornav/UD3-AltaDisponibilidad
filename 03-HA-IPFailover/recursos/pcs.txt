@@ -1,0 +1,9 @@
+# Opciones globales
+pcs property set stonith-enabled=false
+pcs property set no-quorum-policy=ignore
+pcs resource op defaults update timeout=20s
+
+# IP Virtual
+pcs resource create CLUSTER_IP ocf:heartbeat:IPaddr2 ip=172.31.0.100 cidr_netmask=16 op monitor interval=60s
+pcs constraint location CLUSTER_IP prefers nodo1.example.com=INFINITY
+

@@ -1,0 +1,26 @@
+---
+# Operaciones sobre todos los nodos
+- hosts: nodo1, nodo2
+
+  gather_facts: true
+  remote_user: vagrant
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  # Desactivar ejecución en paralelo para evitar problemas con Vagrant-Cachier
+  serial: 1
+
+  vars:
+    equipo: "{{ inventory_hostname }}"
+  
+  tasks:
+    # Configurar resolvconf para utilizar nuestro DNS
+    - name: Eliminar enlace simbólico a /etc/resolv.conf
+      file: path=/etc/resolv.conf state=absent
+
+    - name: Configurar resolvconf para utilizar nuestro DNS
+      template: src=dns-client/resolv.conf.j2
+        dest=/etc/resolv.conf
+        owner=root group=root mode=0644
+
