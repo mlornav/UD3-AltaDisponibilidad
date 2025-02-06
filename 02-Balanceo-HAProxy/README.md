@@ -179,7 +179,7 @@ listen balanceador
 
 	# Archivo que el balanceador pedirá a los servidores web periódicamente
 	# para comprobar si siguen con vida
-	option httpchk GET /accesible.html
+	option httpchk GET /
 
 	# server es una directiva compleja y admite multitud de parámetros, como
 	# podemos ver en:
