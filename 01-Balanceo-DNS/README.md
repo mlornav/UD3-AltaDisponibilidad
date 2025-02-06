@@ -40,7 +40,7 @@ sudo ./utils/dns-escenario.sh
 #### 3) Acceder al servidor DNS + Balanceador
 
 ~~~
-vagrant ssh balanceador
+vagrant ssh dns
 ~~~
 
 ## Realizacion e iteracion con el escenario

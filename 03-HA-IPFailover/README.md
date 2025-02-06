@@ -39,16 +39,6 @@ ansible-playbook site.yml
 sudo ./utils/dns-escenario.sh
 ~~~
 
-### Desechar el escenario correctamente
-
-Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
-
-~~~
-vagrant destroy -f
-sudo ./utils/dns-sistema.sh
-~~~
-
-
 ## Ejercicio 1. Instalación y configuración básica del cluster
 
 Para implementar un cluster de alta disponibilidad vamos a necesitar los siguientes componentes y herramientas:
@@ -307,13 +297,11 @@ Accede a la siguiente dirección para echar un vistazo a la interfaz web de admi
 
 <https://172.31.0.100:2224/manage>
 
+### Desechar el escenario correctamente
 
-## Para saber más
+Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
 
-- [Ahead of the Pack: the Pacemaker High-Availability Stack ](https://www.linuxjournal.com/content/ahead-pack-pacemaker-high-availability-stack)
-- [Introduction to High Availability](https://ubuntu.com/server/docs/ubuntu-ha-introduction)
-- [Configuración y gestión de clusters de alta disponibilidad](https://access.redhat.com/documentation/es-es/red_hat_enterprise_linux/8/html/configuring_and_managing_high_availability_clusters/index)
-- [Configuring and managing high availability clusters](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/configuring_and_managing_high_availability_clusters/index)
-- [Clusters from Scratch](https://clusterlabs.org/pacemaker/doc/deprecated/en-US/Pacemaker/1.1/html/Clusters_from_Scratch/)
-- [Pacemaker para grupos de disponibilidad e instancias de clúster de conmutación por error en Linux](https://learn.microsoft.com/es-es/sql/linux/sql-server-linux-pacemaker-basics?view=sql-server-ver16)
-- [Configuración de un clúster de Pacemaker para grupos de disponibilidad de SQL Server](https://learn.microsoft.com/es-es/sql/linux/sql-server-linux-availability-group-cluster-pacemaker?view=sql-server-ver16&tabs=rhel)
+~~~
+vagrant destroy -f
+sudo ./utils/dns-sistema.sh
+~~~
