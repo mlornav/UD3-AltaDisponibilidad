@@ -1,0 +1,45 @@
+- hosts:
+    - nodo1
+
+  gather_facts: true
+  remote_user: vagrant
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  # Desactivar ejecución en paralelo para evitar problemas con Vagrant-Cachier
+  serial: 1
+
+
+  tasks:
+    - name: Autorizar a los miembros del cluster
+      command: pcs host auth -u hacluster -p entrar {{nodo1_nombre}} addr={{nodo1_ip}} {{nodo2_nombre}} addr={{nodo2_ip}}
+      notify:
+        - start cluster
+        - enable cluster
+        - configure pacemaker
+
+    - name: Configurar el nombre y los miembros del cluster
+      command: pcs cluster setup {{cluster_nombre}} {{nodo1_nombre}} addr={{nodo1_ip}} {{nodo2_nombre}} addr={{nodo2_ip}} transport udp --force
+      notify:
+        - start cluster
+        - enable cluster
+        - configure pacemaker
+
+    - name: Copiar un volcado con la configuración de los recursos de pacemaker
+      copy: src=files/pacemaker/pacemaker.dump
+        dest=/var/tmp/pacemaker.dump
+        owner=root group=root
+      notify: configure pacemaker
+
+
+  handlers:
+    - name: start cluster
+      command: pcs cluster start --all
+
+    - name: enable cluster
+      command: pcs cluster enable --all
+
+    - name: configure pacemaker
+      command: /usr/sbin/crm configure load update /var/tmp/pacemaker.dump  
+

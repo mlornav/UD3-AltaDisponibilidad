@@ -1,0 +1,17 @@
+node 1: nodo1.example.com
+node 2: nodo2.example.com
+primitive CLUSTER_IP IPaddr2 \
+	params cidr_netmask=16 ip=172.31.0.100 \
+	op monitor interval=60s \
+	op start timeout=20s interval=0s \
+	op stop timeout=20s interval=0s
+location location-CLUSTER_IP-nodo1.example.com-INFINITY CLUSTER_IP inf: nodo1.example.com
+property cib-bootstrap-options: \
+	have-watchdog=false \
+	dc-version=2.1.2-ada5c3b36e2 \
+	cluster-infrastructure=corosync \
+	cluster-name=cluster1 \
+	stonith-enabled=false \
+	no-quorum-policy=ignore
+op_defaults op_defaults-meta_attributes: \
+	timeout=20s

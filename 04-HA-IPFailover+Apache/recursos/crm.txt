@@ -1,0 +1,21 @@
+Ya está configurado:
+--------------------------------------------------------------------------------
+# Opciones globales
+crm configure property stonith-enabled=false
+crm configure property no-quorum-policy=ignore
+crm configure property default-action-timeout="240"
+
+# IP Virtual
+crm configure primitive CLUSTER_IP ocf:heartbeat:IPaddr2 params ip="172.31.0.100" nic="eth1" op monitor interval="10s" meta is-managed="true"
+crm configure location PREFER_NODO1 CLUSTER_IP inf: nodo1
+
+
+Falta por configurar:
+--------------------------------------------------------------------------------
+# Apache
+crm configure primitive APACHE ocf:heartbeat:apache params configfile="/etc/apache2/apache2.conf" statusurl="http://localhost/server-status" op monitor interval="1min" op start interval="0" timeout="40s" op stop interval="0" timeout="60s"
+
+# Apache debe estar donde esté la IP Virtual
+crm configure colocation APACHE_WITH_IP inf: APACHE CLUSTER_IP
+crm configure order APACHE_AFTER_IP inf: CLUSTER_IP APACHE
+

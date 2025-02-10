@@ -1,0 +1,56 @@
+- hosts:
+    - nodo1
+    - nodo2
+
+  gather_facts: true
+  remote_user: vagrant
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  # Desactivar ejecución en paralelo para evitar problemas con Vagrant-Cachier
+  serial: 1
+
+
+  tasks:
+    # Instalación
+    - name: Instalar servicios de clustering
+      apt: pkg={{ item }} state=present
+      with_items:
+        - corosync
+        - pacemaker
+        - pcs
+        - resource-agents
+      notify:
+        - start corosync
+        - start pacemaker
+
+    - name: Configurar "entrar" como clave para el usuario "hacluster"
+      shell: echo hacluster:entrar | sudo chpasswd
+
+    - name: Copiar la clave de autenticación de corosync
+      copy: src=files/corosync/authkey
+        dest=/etc/corosync/authkey
+        owner=root group=root mode=0400
+      notify: restart corosync
+
+    - name: Configurar enlace de sincronización de corosync y los logs
+      copy: src=files/corosync/corosync.conf
+        dest=/etc/corosync/corosync.conf
+        owner=root group=root mode=0644
+      notify: restart corosync
+  
+
+  handlers:
+    - name: start corosync
+      systemd: name=corosync state=started
+
+    - name: restart corosync
+      systemd: name=corosync state=restarted
+
+    - name: start pacemaker
+      systemd: name=pacemaker state=started
+
+    - name: restart pacemaker
+      systemd: name=pacemaker state=restarted
+

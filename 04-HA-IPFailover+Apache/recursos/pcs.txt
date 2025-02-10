@@ -1,0 +1,24 @@
+Ya está configurado:
+--------------------------------------------------------------------------------
+# Opciones globales
+pcs property set stonith-enabled=false
+pcs property set no-quorum-policy=ignore
+pcs resource op defaults update timeout=20s
+
+# IP Virtual
+pcs resource create CLUSTER_IP ocf:heartbeat:IPaddr2 ip=172.31.0.100 cidr_netmask=16 op monitor interval=60s
+pcs constraint location CLUSTER_IP prefers nodo1.example.com=INFINITY
+
+
+Falta por configurar:
+--------------------------------------------------------------------------------
+# Instalar resource-agents en ambos nodos
+apt install resource-agents
+
+# Apache
+pcs resource create APACHE ocf:heartbeat:apache configfile="/etc/apache2/apache2.conf" statusurl="http://localhost/server-status" op monitor interval="1min" op start interval="0" timeout="40s" op stop interval="0" timeout="60s"
+
+# Apache debe estar donde esté la IP Virtual
+pcs constraint colocation add CLUSTER_IP with APACHE INFINITY
+pcs constraint order CLUSTER_IP then APACHE
+
