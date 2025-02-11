@@ -101,7 +101,7 @@ pcs constraint list --full
 pcs constraint remove location-CLUSTER_IP-nodo1.example.com-INFINITY
 ~~~
 
-- Una vez realizadas las tareas que mantenimiento se devuelve el control de los recursos a **pacemaker** para que los siga gestionando:
+Una vez realizadas las tareas que mantenimiento se devuelve el control de los recursos a **pacemaker** para que los siga gestionando:
 
 ~~~
 pcs resource clear [recurso]
