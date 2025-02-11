@@ -85,7 +85,7 @@ También puede verse de forma mucho más clara a través del navegador, para lo 
 - Archivo de configuración de Bind (/var/lib/bind/db.example.com) con los registros A cambiados
 - Dos ejecuciones del comando dig www.example.com, mostrando cómo alternan las IP de nodo1 (172.31.0.11) y nodo2 (172.31.0.12).
 
-## Desechar el escenario correctamente
+## Desechar el Escenario Correctamente
 
 Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
 
