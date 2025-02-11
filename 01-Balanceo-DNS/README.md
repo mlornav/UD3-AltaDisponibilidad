@@ -2,9 +2,9 @@
 
 ## Descripción del escenario
 
-Utilizando entradas **tipo A** duplicadas en un servidor DNS es posible realizar de forma muy sencilla un balanceo de carga entre varios equipos, esto se conoce como [DNS round robin](http://en.wikipedia.org/wiki/Round-robin_DNS) (aunque este sistema presenta algunos inconvenientes).
+El balanceo de carga basado en DNS utiliza registros tipo A duplicados para distribuir las solicitudes entre varios servidores. Este método, conocido como [DNS round robin](http://en.wikipedia.org/wiki/Round-robin_DNS) permite que un servidor DNS rote las respuestas de manera alternada, distribuyendo las conexiones entre varios servidores. Aunque presenta limitaciones, es una solución sencilla y práctica para equilibrar la carga.
 
-En este caso vamos a realizar un balanceo de carga entre dos servidores web, para lo que creamos un escenario con tres equipos:
+En este escenario, se realiza el balanceo de carga entre dos servidores web configurados con el mismo nombre (www.example.com). Los detalles de los nodos son los siguientes:
 
 Nodo              | IP          | Descripción
 ------------------|-------------|------------
@@ -12,8 +12,7 @@ dns.example.com   | 172.31.0.10 | Servidor DNS
 nodo1.example.com | 172.31.0.11 | Servidor web
 nodo2.example.com | 172.31.0.12 | Servidor web
 
-Los dos servidores WEB comparten el mismo nombre (**www.example.com**):
-
+Los registros DNS se configuran como:
 ~~~
 www.example.com.	IN	A	172.31.0.11
 www.example.com.	IN	A	172.31.0.12
@@ -21,7 +20,7 @@ www.example.com.	IN	A	172.31.0.12
 
 Cada vez que se hace una consulta, el servidor DNS va rotando el orden de las respuestas. Esto hace que los clientes se vayan conectando alternativamente a un servidor u otro, consiguiendo así que la carga de trabajo se reparta entre los dos.
 
-## Utilización básica del escenario
+## Preconfiguración del Escenario
 
 #### 1) Desplegar y configurar el escenario base
 
@@ -43,7 +42,7 @@ sudo ./utils/dns-escenario.sh
 vagrant ssh dns
 ~~~
 
-## Realizacion e iteracion con el escenario
+## Desarrollo del Escenario
 
 #### 1) Configuración del DNS (Round Robin)
 
@@ -80,7 +79,11 @@ o con `wget`:
 wget -q http://www.example.com -O - | grep nodo
 ~~~
 
-También puede verse de forma mucho más clara a través del navegador, para lo cual es necesario ir a la siguiente dirección <http://www.example.com> y podremos comprobar como se balancean las peticiones entre los dos servidores web **nodo1** y **nodo2** (es necesario forzar la recarga, por ejemplo, con CTRL+F5).
+También puede verse de forma mucho más clara a través del navegador, para lo cual es necesario ir a la siguiente dirección <http://www.example.com> y comprobar como se balancean las peticiones entre los dos servidores web **nodo1** y **nodo2** (es necesario forzar la recarga, por ejemplo, con CTRL+F5).
+
+## Documentación a Entregar
+- Archivo de configuración de Bind (/var/lib/bind/db.example.com) con los registros A cambiados
+- Dos ejecuciones del comando dig www.example.com, mostrando cómo alternan las IP de nodo1 (172.31.0.11) y nodo2 (172.31.0.12).
 
 ## Desechar el escenario correctamente
 
