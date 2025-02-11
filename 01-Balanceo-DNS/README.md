@@ -4,7 +4,7 @@
 
 El balanceo de carga basado en DNS utiliza registros tipo A duplicados para distribuir las solicitudes entre varios servidores. Este método, conocido como [DNS round robin](http://en.wikipedia.org/wiki/Round-robin_DNS) permite que un servidor DNS rote las respuestas de manera alternada, distribuyendo las conexiones entre varios servidores. Aunque presenta limitaciones, es una solución sencilla y práctica para equilibrar la carga.
 
-En este escenario, se realiza el balanceo de carga entre dos servidores web configurados con el mismo nombre (www.example.com). Los detalles de los nodos son los siguientes:
+En este escenario, se realizará el balanceo de carga entre dos servidores web configurados con el mismo nombre (www.example.com). Los detalles de los nodos son los siguientes:
 
 Nodo              | IP          | Descripción
 ------------------|-------------|------------
