@@ -2,11 +2,11 @@
 
 ## Descripción del escenario
 
-El caso más sencillo de cluster de alta disponibilidad es utilizar dos nodos que funcionen en modo maestro-esclavo y que ofrezcan como recurso de alta disponibilidad una dirección IP, que se denomina, en algunos casos, **IP virtual**.
+El caso más sencillo de un clúster de alta disponibilidad consiste en utilizar dos nodos configurados en modo maestro-esclavo, que proporcionan como recurso de alta disponibilidad una dirección IP, conocida en algunos casos como **IP virtual**.
 
 Cada nodo del cluster posee su propia dirección IP y uno de ellos posee además la dirección IP virtual. El software de alta disponibilidad está monitorizando ambos nodos en todo momento y en el caso de que el nodo que ofrece el **recurso** tenga algún problema, el recurso (la dirección IP en este caso) pasa al nodo que esté en modo esclavo.
 
-Vamos a utilizar la siguiente configuración de equipos, con la peculiaridad de que, además, utilizaremos la dirección **172.31.0.100** como **IP virtual** asociada a **www.example.com.**
+En este escenario se va a utilizar la siguiente configuración de equipos, con la peculiaridad de que, además, se utilizará la dirección **172.31.0.100** como **IP virtual** asociada a **www.example.com.**
 
 Servidores que componen el escenario:
 
@@ -23,9 +23,9 @@ Nombre de dominio | IP virtual   | Servicio
 www.example.com   | 172.31.0.100 | PING
 
 
-## Utilización básica del escenario
+## Preconfiguración del Escenario
 
-### Desplegar y configurar el escenario base
+### 1) Desplegar y configurar el escenario base
 
 ~~~
 vagrant up
@@ -33,7 +33,7 @@ ssh-add ~/.vagrant.d/insecure_private_key
 ansible-playbook site.yml
 ~~~
 
-### Utilizar el servidor DNS del escenario
+### 2) Utilizar el servidor DNS del escenario
 
 ~~~
 sudo ./utils/dns-escenario.sh
