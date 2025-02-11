@@ -1,10 +1,10 @@
-# Clúster de servidores web con balanceador de carga
+# Clúster de Servidores web con Balanceador de Carga
 
-## Descripción del escenario
+## Descripción del Escenario
 
-Utilizando un equipo externo que actúa como intermediario entre los clientes y los servidores web, al cual llamamos [balanceador de carga](https://es.wikipedia.org/wiki/Balanceador_de_carga), es posible repartir de forma equilibrada las peticiones de los usuarios entre todos los nodos.
+Utilizando un equipo externo que actúa como intermediario entre los clientes y los servidores web, conocido como [balanceador de carga](https://es.wikipedia.org/wiki/Balanceador_de_carga), es posible repartir de forma equilibrada las peticiones de los usuarios entre todos los nodos.
 
-En este caso vamos a realizar un balanceo de carga entre dos servidores web, para lo que creamos un escenario con tres equipos:
+En este escenario se implementará un balanceo de carga entre dos servidores web, utilizando tres equipos:
 
 Nodo                      | IP          | Descripción
 --------------------------|-------------|------------
@@ -15,7 +15,7 @@ nodo2.example.com         | 172.31.0.12 | Servidor web
 En este caso, todos los clientes acceden al clúster a través del nodo balanceador (**balanceador.example.com**), que a su vez, va redirigiendo las conexiones a los **nodos 1 y 2** de forma equilibrada.
 
 
-## Utilización básica del escenario
+## Preconfiguración del Escenario
 
 #### 1) Desplegar y configurar el escenario base
 
@@ -38,15 +38,15 @@ vagrant ssh balanceador
 ~~~
 
 
-## Configuración e iteración con HAProxy
+## Desarrollo del Escenario
 
-En primer lugar, instalamos **HAProxy**:
+En primer lugar, se instalará **HAProxy**:
 
 ~~~
 root@balanceador: apt install haproxy
 ~~~
 
-Seguidamente, podemos revisar los ajustes por defecto del servicio editando el fichero de configuración en `/etc/default/haproxy`:
+Es posible ver los ajustes por defecto del servicio accediendo el fichero de configuración en `/etc/default/haproxy`:
 
 ~~~
 # Defaults file for HAProxy
@@ -61,7 +61,7 @@ Seguidamente, podemos revisar los ajustes por defecto del servicio editando el f
 #EXTRAOPTS="-de -m 16"
 ~~~
 
-Como podemos comprobar, el servicio se configura mediante el fichero `/etc/haproxy/haproxy.cfg`.
+Como se puede ver, el servicio se configura mediante el fichero `/etc/haproxy/haproxy.cfg`.
 
 HAProxy utiliza los siguientes conceptos:
 
@@ -83,7 +83,7 @@ El uso de secciones **frontend** y **backend** tiene sentido cuando se pueden re
 
 La cantidad de directivas existentes es muy grande y su uso en las diferentes secciones puede verse en [esta tabla](http://cbonte.github.io/haproxy-dconv/1.6/configuration.html#4.1).
 
-Para nuestro escenario, utilizaremos la siguiente configuración:
+Para este escenario, se utulizará la siguiente configuración:
 
 ~~~.sh
 # Parámetros globales
@@ -196,13 +196,13 @@ listen balanceador
 	server host2 <ip_nodo2>:80 check inter 2000 rise 2 fall 3 weight 50
 ~~~
 
-Podemos verificar que la configuración es correcta mediante el comando:
+Se puede verificar que la configuración es correcta mediante el comando:
 
 ~~~
 haproxy -f /etc/haproxy/haproxy.cfg -c
 ~~~
 
-Finalmente, reiniciamos el servicio para que la nueva configuración tenga efecto, con lo cual, deberíamos tener el balanceador completamente operativo:
+Finalmente, el servicio se reinicia para aplicar la nueva configuración, dejando el balanceador completamente operativo:
 
 ~~~
 systemctl restart haproxy
@@ -225,7 +225,7 @@ Relativo a los servidores de backup existe también:
 
 - **option allbackups**: hace que, en caso de caída de todos los servidores, funcionen todos los servidores de backup balanceados.
 
-Para poder monitorizar el balanceador, vamos a activar estadísticas en el servidor. HAProxy permite habilitar un socket al que hacer peticiones sobre sus propias estadísticas de uso. Además, dispone de un interfaz web que muestra dicha información y que se habilita como un proxy más. Por ejemplo:
+Para poder monitorizar el balanceador, se van a activar estadísticas en el servidor. HAProxy permite habilitar un socket al que hacer peticiones sobre sus propias estadísticas de uso. Además, dispone de un interfaz web que muestra dicha información y que se habilita como un proxy más. Por ejemplo:
 
 ~~~.sh
 # Activar las estadísticas a través de 172.31.0.10:1936
@@ -250,7 +250,11 @@ listen  stats
 ~~~
 
 !!! Nota
-	Para consultar las estadísticas, accederemos a la dirección <http://balanceador.example.com:1936/haproxy?stats> (Usuario: *admin*, Clave: *entrar*).
+	Para consultar las estadísticas, se debe acceder a la dirección <http://balanceador.example.com:1936/haproxy?stats> (Usuario: *admin*, Clave: *entrar*).
+
+### Documentación a Entregar ###
+- Interfaz gráfica de monitorización del servidor
+- Acceso a la dirección http://balanceador.example.com, donde se puede observar cómo la solicitud es respondida tanto por nodo1 como por nodo2.
 
 ### Desechar el escenario correctamente
 
