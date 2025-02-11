@@ -91,7 +91,7 @@ pcs constraint order CLUSTER_IP then APACHE
 Cabe destacar que es posible cambiar manualmente los recursos a otro nodo con la instrucción:
 
 ~~~
-pcs resource move [recurso] [nodo]
+pcs resource move [recurso] [nodoX.example.com]
 ~~~
 
 Esto es útil, por ejemplo, para realizar tareas de mantenimiento en uno de los nodos. Aunque es posible que, antes de poder mover manualmente los recursos, sea necesaria quitar la regla que establece la preferencia por el **nodo1**:
