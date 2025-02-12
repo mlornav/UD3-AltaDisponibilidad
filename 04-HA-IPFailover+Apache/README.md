@@ -106,15 +106,13 @@ Una vez realizadas las tareas que mantenimiento se devuelve el control de los re
 ~~~
 pcs resource clear [recurso]
 ~~~
-
-### Documentacion a Entregar
+## Documentacion a Entregar
 - Captura del comando `crm configure show` para ver la configuración del cluster
 - Ejecuta la instrucción `crm_mon` (en alguno de los nodos), comprobando que los dos nodos están operativos y que los recursos **CLUSTER_IP** y **APACHE** están funcionando correctamente en uno de ellos.
 - Utiliza el navegador y accede a la dirección **www.example.com**. Recarga la página y comprueba que siempre responde el mismo nodo (nodo maestro).
 - Para el nodo maestro con `pcs node standby` y verifica que es posible acceder con el navegador al sitio **www.example.com** (el nodo esclavo será el encargo de responder a la solicitud).
 
-### Desechar el escenario correctamente
-
+## Desechar el escenario correctamente
 Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
 
 ~~~
