@@ -1,0 +1,41 @@
+---
+# Operaciones sobre todos los nodos
+- hosts: all
+
+  gather_facts: true
+  remote_user: vagrant
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  # Desactivar ejecución en paralelo para evitar problemas con Vagrant-Cachier
+  serial: 1
+
+  vars:
+    equipo: "{{ inventory_hostname }}"
+  
+  pre_tasks:
+#No funciona en Debian:
+#    - name: Permitir a root acceder con la clave SSH de vagrant
+#      command: cp /home/vagrant/.ssh/authorized_keys /root/.ssh/authorized_keys
+  
+    - name: Actualizar la lista de paquetes
+      apt: update_cache=yes
+
+    - name: Asignar nombre de equipo
+      hostname: name={{ equipo }}
+
+    - name: Asociar dirección de loopback
+      lineinfile: dest=/etc/hosts
+        regexp='^127\.0\.1\.1'
+        line='127.0.1.1 {{ equipo }}'
+        owner=root group=root mode=0644
+
+  tasks:
+    - name: Comprobar conectividad
+      ping:
+
+  handlers:
+    - name: restart ssh
+      systemd: name=ssh state=restarted
+

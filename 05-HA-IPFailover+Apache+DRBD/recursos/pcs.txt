@@ -1,0 +1,51 @@
+Ya está configurado:
+--------------------------------------------------------------------------------
+# Opciones globales
+pcs property set stonith-enabled=false
+pcs property set no-quorum-policy=ignore
+pcs resource op defaults update timeout=20s
+
+# IP Virtual
+pcs resource create CLUSTER_IP ocf:heartbeat:IPaddr2 ip=172.31.0.100 cidr_netmask=16 op monitor interval=60s
+pcs constraint location CLUSTER_IP prefers nodo1.example.com=INFINITY
+
+# Apache
+pcs resource create APACHE ocf:heartbeat:apache configfile="/etc/apache2/apache2.conf" statusurl="http://localhost/server-status" op monitor interval="1min" op start interval="0" timeout="40s" op stop interval="0" timeout="60s"
+
+# Apache debe estar donde esté la IP Virtual
+pcs constraint colocation add CLUSTER_IP with APACHE INFINITY
+pcs constraint order CLUSTER_IP then APACHE
+
+
+Falta por configurar:
+--------------------------------------------------------------------------------
+# Instalar en ambos nodos
+apt install drbd-utils
+
+# Configurar el recurso DRBD especificando su nombre
+pcs resource create WEB_DATA ocf:linbit:drbd drbd_resource="web_data" op monitor interval="30s" role="Slave" op monitor interval="29s" role="Master"
+
+# Definir conjunto Maestro/Esclavo
+pcs resource promotable WEB_DATA meta master-max=1 master-node-max=1 clone-max=2 clone-node-max=1 notify=true
+
+# Limpiar el recurso WEB_DATA en el caso de que se haya quedado atascado en modo "unmanaged". Otra opción es ejecutar "crm_resource -C" que limpia todos los recursos
+pcs resource cleanup WEB_DATA
+
+# Configurar recurso para montar el sistema de archivos del dispositivo DRBD en un punto de montaje
+pcs resource create WEB_FS ocf:heartbeat:Filesystem device="/dev/drbd1" directory="/mnt" fstype="ext4"
+
+# Indicar al cluster que el sistema de archivos debe ir en el nodo maestro
+pcs constraint colocation add WEB_FS with WEB_DATA-clone INFINITY with-rsc-role=Master
+
+# Si es necesario, limpiamos las posibles acciones fallidas que hayan sucedido relacionadas con el recurso WEB_FS
+pcs resource cleanup WEB_FS
+
+# Indicar al cluster que primero se debe promocionar DRBD y después se debe iniciar el sistema de archivos
+pcs constraint order promote WEB_DATA-clone then start WEB_FS
+
+# Apache debe colocarse en el nodo donde esté montado el sistema de archivos
+pcs constraint colocation add APACHE with WEB_FS INFINITY
+
+# Primero se monta el sistema de archivos y luego se inicia Apache
+pcs constraint order WEB_FS then APACHE
+

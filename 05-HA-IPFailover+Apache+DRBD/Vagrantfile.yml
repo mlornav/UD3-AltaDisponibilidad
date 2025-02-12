@@ -1,0 +1,24 @@
+---
+prefix: 'ha5'
+
+servers:
+  - name: dns
+    box: debian/bullseye64
+    ram: 768
+    ip: 172.31.0.10
+    mask: 255.255.0.0
+  
+  - name: nodo1
+    box: debian/bullseye64
+    ram: 768
+    ip: 172.31.0.11
+    mask: 255.255.0.0
+    extra-disk: 100
+  
+  - name: nodo2
+    box: debian/bullseye64
+    ram: 768
+    ip: 172.31.0.12
+    mask: 255.255.0.0
+    extra-disk: 100
+

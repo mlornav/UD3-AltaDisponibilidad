@@ -1,0 +1,1 @@
+En este escenario usamos la imagen debian/bullseye64 dado que el kernel de ubuntu/jammy64 no viene con el módulo drbd

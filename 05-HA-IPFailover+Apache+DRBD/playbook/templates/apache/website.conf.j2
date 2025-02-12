@@ -1,0 +1,13 @@
+<VirtualHost *:80>
+	ServerName {{ fqdn }}
+
+	ServerAdmin admin@{{ dominio }}
+	DocumentRoot /var/www/{{ equipo }}/
+
+	<Directory /var/www/{{ equipo }}/ >
+		Options Indexes FollowSymLinks
+		AllowOverride None
+		Require all granted
+	</Directory>
+</VirtualHost>
+

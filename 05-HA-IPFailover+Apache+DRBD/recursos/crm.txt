@@ -1,0 +1,47 @@
+Ya está configurado:
+--------------------------------------------------------------------------------
+# Opciones globales
+crm configure property stonith-enabled=false
+crm configure property no-quorum-policy=ignore
+crm configure property default-action-timeout="240"
+
+# IP Virtual
+crm configure primitive CLUSTER_IP ocf:heartbeat:IPaddr2 params ip="172.31.0.100" nic="eth1" op monitor interval="10s" meta is-managed="true"
+crm configure location PREFER_NODO1 CLUSTER_IP inf: nodo1
+
+# Apache
+crm configure primitive APACHE ocf:heartbeat:apache params configfile="/etc/apache2/apache2.conf" statusurl="http://localhost/server-status" op monitor interval="1min" op start interval="0" timeout="40s" op stop interval="0" timeout="60s"
+
+# Apache debe estar donde esté la IP Virtual
+crm configure colocation APACHE_WITH_IP inf: APACHE CLUSTER_IP
+crm configure order APACHE_AFTER_IP inf: CLUSTER_IP APACHE
+
+
+Falta por configurar:
+--------------------------------------------------------------------------------
+# Configurar el recurso DRBD especificando su nombre
+crm configure primitive WEB_DATA ocf:linbit:drbd params drbd_resource="web_data" op monitor interval="30s" role="Slave" op monitor interval="29s" role="Master"
+
+# Definir conjunto Maestro/Esclavo
+crm configure ms WEB_DATA_SET WEB_DATA meta master-max=1 master-node-max=1 clone-max=2 clone-node-max=1 notify=true
+
+# Limpiar el recurso WEB_DATA en el caso de que se haya quedado atascado en modo "unmanaged". Otra opción es ejecutar "crm_resource -C" que limpia todos los recursos
+crm resource cleanup WEB_DATA
+
+# Configurar recurso para montar el sistema de archivos del dispositivo DRBD en un punto de montaje
+crm configure primitive WEB_FS ocf:heartbeat:Filesystem params device="/dev/drbd/by-res/web_data" directory="/mnt" fstype="ext4"
+
+# Indicar al cluster que el sistema de archivos debe ir en el nodo maestro
+crm configure colocation FS_ON_DRBD inf: WEB_FS WEB_DATA_SET:Master
+
+# Si es necesario, limpiamos las posibles acciones fallidas que hayan sucedido relacionadas con el recurso WEB_FS
+crm resource cleanup WEB_FS
+
+# Indicar al cluster que primero se debe promocionar DRBD y después se debe iniciar el sistema de archivos
+crm configure order WEB_FS_AFTER_WEB_DATA inf: WEB_DATA_SET:promote WEB_FS:start
+
+# Apache debe colocarse en el nodo donde esté montado el sistema de archivos
+crm configure colocation APACHE_WITH_WEB_FS inf: APACHE WEB_FS
+
+# Primero se monta el sistema de archivos y luego se inicia Apache
+crm configure order APACHE_AFTER_WEB_FS inf: WEB_FS APACHE
