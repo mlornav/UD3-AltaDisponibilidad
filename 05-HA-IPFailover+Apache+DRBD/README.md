@@ -40,7 +40,7 @@ sudo ./utils/dns-escenario.sh
 ~~~
 
 
-3) Comprobar el estado del escencario
+3) Comprobar el estado del escenario
 
 En el escenario anterior, se configuró la IP virtual como recurso ejecutando los siguientes comandos:
 
@@ -87,17 +87,16 @@ crm configure show
 
 Para salir, se debe pulsa `q`.
 
-## Ejercicio 2. Configuración inicial de DRBD
+## Desarrollo del Escenario
 
-### 1) En ambos nodos:
-
-Instalamos **DRBD**:
+#### 1) Configuracion de DRBD (en ambos nodos)
+En primer lugar se instalará **DRBD**:
 
 ~~~
 apt install drbd-utils
 ~~~
 
-Configuramos DRBD y definimos el multi-dispositivo de bloques replicado por red. Para ello editamos `/etc/drbd.d/global_common.conf`:
+A continuación, se configurará DRBD y se definirá el uso de múltiples dispositivos de bloques replicados por red. Para ello, se procederá a editar el archivo:o `/etc/drbd.d/global_common.conf`:
 
 ~~~
 global {
@@ -133,7 +132,7 @@ resource web_data {
 }
 ~~~
 
-Inicializamos el dispositivo de bloques:
+Se inicializará el dispositivo de bloques:
 
 ~~~
 drbdadm create-md web_data
