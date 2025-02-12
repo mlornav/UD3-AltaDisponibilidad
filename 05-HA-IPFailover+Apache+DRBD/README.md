@@ -2,14 +2,11 @@
 
 ## Descripción del escenario
 
-Partiendo del escenario de **IP Failover + Apache** ya configurado, vamos a agregar los recursos **DRBD** y **Filesystem** al monitor de recursos del cluster.
+Partiendo de la configuración realizada en el escenario de **IP Failover + Apache**, se van a agregar los recursos **DRBD** y **Filesystem** al monitor de recursos del cluster.
 
-[DRBD](https://www.drbd.org/en/comp/drbd-linux-driver) consiste en un sistema de replicación de dispositivos de bloques por red. Podemos pensar el él como en una especie de RAID1 donde los discos que conforman el conjunto no están en el mismo equipo. Se encuentran en equipos distintos que sincronizan los cambios a través de la red.
+DRBD (Distributed Replicated Block Device) es una tecnología de replicación de dispositivos de bloques a través de la red, funcionando de manera similar a un RAID1, pero con la diferencia de que los discos que conforman el conjunto no están en el mismo equipo, sino distribuidos entre diferentes nodos. Estos nodos sincronizan los cambios a través de la red, permitiendo que los datos estén siempre disponibles en ambos sistemas. Gracias a esta tecnología el **directorio de datos del sitio web** se mantendrá replicado y operativo en modo maestro/esclavo.
 
-DRBD nos permitirá añadir posteriormente un recurso más al clúster: el **directorio de datos del sitio web**, que se mantendrá replicado y operativo en modo maestro/esclavo gracias a esta tecnología.
-
-Como en el escenario anterior, Pacemaker controlará que los servicios estén siempre operativos en el nodo necesario. Además, como tenemos asociado el nombre de dominio **www.example.com** a la IP virtual **172.31.0.100**, accederemos siempre al servicio web al poner en el navegador la dirección
-<http://www.example.com>.
+Al igual que en el escenario anterior, Pacemaker controlará que los servicios estén siempre operativos en el nodo necesario. Además, al tener asociado el nombre de dominio **www.example.com** a la IP virtual **172.31.0.100**, para acceder al servicio web se deberáa escribir en el navegador la dirección <http://www.example.com>.
 
 Servidores que componen el escenario:
 
@@ -26,9 +23,9 @@ Nombre de dominio | IP virtual   | Servicio
 www.example.com   | 172.31.0.100 | Sitio Web
 
 
-## Utilización básica del escenario
+## Preconfiguración del escenario
 
-### Desplegar y configurar el escenario base
+#### 1) Desplegar y configurar el escenario base
 
 ~~~
 vagrant up
@@ -36,47 +33,38 @@ ssh-add ~/.vagrant.d/insecure_private_key
 ansible-playbook site.yml
 ~~~
 
-### Utilizar el servidor DNS del escenario
+#### 2) Utilizar el servidor DNS del escenario
 
 ~~~
 sudo ./utils/dns-escenario.sh
 ~~~
 
-### Desechar el escenario correctamente
 
-Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
+3) Comprobar el estado del escencario
 
-~~~
-vagrant destroy -f
-sudo ./utils/dns-sistema.sh
-~~~
-
-
-## Ejercicio 1. Revisar la configuración anterior
-
-Anteriormente, ya habíamos configurado la IP virtual como recurso de la siguiente forma:
+En el escenario anterior, se configuró la IP virtual como recurso ejecutando los siguientes comandos:
 
 ~~~.sh
-# Desactivamos STONITH y ignoramos el quorum
+# Se desactiva STONITH y se ignora el quorum
 pcs property set stonith-enabled=false
 pcs property set no-quorum-policy=ignore
 
-# Definimos timeout por defecto
+# Se define el timeout por defecto
 pcs resource op defaults update timeout=20s
 
-# Definimos el recurso CLUSTER_IP gestionado por el agente ocf:heartbeat:IPaddr2
+# Se define el recurso CLUSTER_IP, gestionado por el agente ocf:heartbeat:IPaddr2
 pcs resource create CLUSTER_IP ocf:heartbeat:IPaddr2 \
 	ip=172.31.0.100 cidr_netmask=16 \
 	op monitor interval=60s
 
-# El resurso CLUSTER_IP tiene afinidad por el nodo1
+# El recurso CLUSTER_IP tiene afinidad por el nodo1
 pcs constraint location CLUSTER_IP prefers nodo1.example.com=INFINITY
 ~~~
 
-También habíamos configurado Apache2 como recurso:
+También se configuró Apache2 como recurso:
 
 ~~~.sh
-# Definimos el recurso APACHE gestionado por el agente ocf:heartbeat:apache
+# Se definio el recurso APACHE gestionado por el agente ocf:heartbeat:apache
 pcs resource create APACHE ocf:heartbeat:apache \
 	configfile="/etc/apache2/apache2.conf" \
 	statusurl="http://localhost/server-status" \
@@ -84,20 +72,20 @@ pcs resource create APACHE ocf:heartbeat:apache \
 	op start interval="0" timeout="40s" \
 	op stop interval="0" timeout="60s"
 
-# Indicamos que los recursos APACHE y CLUSTER_IP deben ir en el mismo nodo
+# Los recursos APACHE y CLUSTER_IP deben ir en el mismo nodo
 pcs constraint colocation add CLUSTER_IP with APACHE INFINITY
 
-# Indicamos que el orden de inicio es: primero CLUSTER_IP y luego APACHE
+# El orden de inicio es: primero CLUSTER_IP y luego APACHE
 pcs constraint order CLUSTER_IP then APACHE
 ~~~
 
-Podemos comprobar que todo esto ya está configurado en este escenario con el siguiente comando:
+Para verificar que todo está correctamente configurado en este escenario, se debe ejecutar el siguiente comando:
 
 ~~~
 crm configure show
 ~~~
 
-Para salir, pulsamos `q`.
+Para salir, se debe pulsa `q`.
 
 ## Ejercicio 2. Configuración inicial de DRBD
 
@@ -321,3 +309,12 @@ pcs constraint delete location-CLUSTER_IP-nodo1.example.com-INFINITY
 ~~~
 
 - Pon en **standby** el nodo maestro y comprueba que, después de ponerlo de nuevo **online**, los recursos se quedan en el otro nodo.
+
+### Desechar el escenario correctamente
+
+Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
+
+~~~
+vagrant destroy -f
+sudo ./utils/dns-sistema.sh
+~~~
