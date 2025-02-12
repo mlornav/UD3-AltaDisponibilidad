@@ -54,7 +54,7 @@ pcs resource create CLUSTER_IP ocf:heartbeat:IPaddr2 ip=172.31.0.100 \
 pcs constraint location CLUSTER_IP prefers nodo1.example.com=INFINITY
 ~~~
 
-Para comprobar que todo esto ya está configurado en este escenario se deberá ejecutar siguiente comando:
+Para verificar que todo está correctamente configurado en este escenario, se debe ejecutar el siguiente comando:
 
 ~~~
 nodo1:~# crm configure show
