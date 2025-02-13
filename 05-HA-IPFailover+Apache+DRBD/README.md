@@ -96,7 +96,7 @@ En primer lugar se instalará **DRBD**:
 apt install drbd-utils
 ~~~
 
-A continuación, se configurará DRBD y se definirá el uso de múltiples dispositivos de bloques replicados por red. Para ello, se procederá a editar el archivo:o `/etc/drbd.d/global_common.conf`:
+A continuación, se configurará DRBD y se definirá el uso de múltiples dispositivos de bloques replicados por red. Para ello, se procederá a editar el archivo: `/etc/drbd.d/global_common.conf`:
 
 ~~~
 global {
