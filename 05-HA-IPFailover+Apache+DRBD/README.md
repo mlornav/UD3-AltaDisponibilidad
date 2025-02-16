@@ -1,6 +1,6 @@
 # Cluster de Alta Disponibilidad con Corosync y Pacemaker<br/>(IP Failover + Apache + DRBD)
 
-## Descripción del escenario
+## Descripción del Escenario
 
 Partiendo de la configuración realizada en el escenario de **IP Failover + Apache**, se van a agregar los recursos **DRBD** y **Filesystem** al monitor de recursos del cluster.
 
@@ -40,7 +40,7 @@ sudo ./utils/dns-escenario.sh
 ~~~
 
 
-3) Comprobar el estado del escenario
+#### 3) Comprobar el estado del escenario
 
 En el escenario anterior, se configuró la IP virtual como recurso ejecutando los siguientes comandos:
 
