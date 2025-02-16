@@ -89,14 +89,14 @@ Para salir, se debe pulsa `q`.
 
 ## Desarrollo del Escenario
 
-#### 1) Configuracion de DRBD (en ambos nodos)
+#### 1) Instalación y Configuracion de DRBD (en ambos nodos)
 En primer lugar se instalará **DRBD**:
 
 ~~~
 apt install drbd-utils
 ~~~
 
-A continuación, se configurará DRBD y se definirá el uso de múltiples dispositivos de bloques replicados por red. Para ello, se procederá a editar el archivo: `/etc/drbd.d/global_common.conf`:
+A continuación, se configurará DRBD y se definirá el uso de múltiples dispositivos de bloques replicados por red. Para ello, se procederá a editar el archivo: `/etc/drbd.d/global_common.conf`. Este archivo define las configuraciones generales para DRBD, como el protocolo de sincronización y opciones globales.
 
 ~~~
 global {
@@ -104,6 +104,7 @@ global {
 }
 
 common {
+	#  Asegura que los datos se escriban en ambos nodos antes de confirmar la escritura.
 	protocol C;
 }
 
@@ -132,42 +133,36 @@ resource web_data {
 }
 ~~~
 
-Se inicializará el dispositivo de bloques:
-
+Mediante los siguientes comandos se creará la metadata interna de DRBD en los discos de los nodos y se levantará el recurso correspondiente:
 ~~~
-drbdadm create-md web_data
-~~~
-
-Levantamos el dispositivo de bloques:
-
-~~~
-drbdadm up web_data
+drbdadm create-md web_data  # Crea la metadata interna de DRBD en los discos de los nodos  
+drbdadm up web_data         # Levanta el recurso DRBD en los nodos  
 ~~~
 
-Comprobamos que aparece un nuevo dispositivo llamado **drbd1**:
+Si lo pasos se han seguido correctamente deberá aparacer un nuevo dispositivo llamado **drbd1**:
 
 ~~~
 lsblk
 ~~~
 
-Comprobamos el estado de replicación:
+Si se comprueba el estado de la replicación, se puede ver que el estado es inconsistente porque los datos de los discos que conforman el RAID basado en DRBD todavía no se han sincronizado. Para ver el estado se deberá ejecutar:
 
 ~~~
 drbdsetup status
 cat /proc/drbd
 ~~~
 
-Veremos que el estado es inconsistente porque los datos de los discos que conforman el RAID basado en DRBD todavía no se han sincronizado.
+#### 2) Actualización del Directorio Raiz de Apache (en ambos nodos)
 
-Para finalizar, vamos a modificar de antemano el sitio web para que la raíz del mismo esté en `/mnt`.
+Tras finalizar la configuración de DBBD, se va a cambiar la raíz del sitio web a `/mnt`.
 
-Primero movemos el directorio del sitio:
+Primero será necesario mover el directorio actual del sitio a `/mnt`:
 
 ~~~
 mv /var/www/html /mnt
 ~~~
 
-Seguidamente, actualizamos el archivo correspondiente dentro de `/etc/apache2/sites-available/`:
+Seguidamente, se actualizará el archivo correspondiente dentro de `/etc/apache2/sites-available/`:
 
 ~~~
 <VirtualHost *:80>
@@ -181,24 +176,24 @@ Seguidamente, actualizamos el archivo correspondiente dentro de `/etc/apache2/si
 </VirtualHost>
 ~~~
 
-Esto lo hacemos porque más adelante necesitaremos montar en este directorio el dispositivo DRBD donde estará almacenado el sitio web.
+Esta configuración será necesaria porque más adelante se montará en este directorio el dispositivo DRBD donde estará almacenado el sitio web.
 
-Finalmente, no debemos olvidar reiniciar el recurso **APACHE** para que cargue la nueva configuración:
+Finalmente, habrá que reiniciar el recurso **APACHE** para que cargue la nueva configuración:
 
 ~~~
 pcs resource restart APACHE 
 ~~~
 
-Si por algún motivo no se inicia el recurso APACHE, podemos intentar hacer lo siguiente:
+Si por algún motivo no se inicia el recurso APACHE, se puede intentar ejecutar el sisguiente comando:
 
 ~~~
 pcs resource enable APACHE 
 ~~~
 
 
-### 2) En el nodo maestro:
+### 3) Sincronizacion de Discos (en el nodo maestro):
 
-Sincronizamos los dos discos sobreescribiendo los datos del nodo secundario mientras observamos cómo se van sincronizando ambos nodos:
+Se sincronizarán los dos discos sobreescribiendo los datos del nodo secundario mientras se observa cómo se sincronizan ambos nodos:
 
 ~~~
 drbdadm -- --overwrite-data-of-peer primary web_data
@@ -231,10 +226,9 @@ Desmontamos el sistema de archivos:
 umount /mnt
 ~~~
 
+### 4) Configuración de los Nuevos Recursos del Cluster
 
-## Ejercicio 3. Configurar los nuevos recursos del cluster
-
-Una vez configurado y creado el dispositivo múltiple de bloques DRBD, procedemos a definir los agentes de recursos y las restricciones necesarias para que se cumpla lo siguiente:
+Una vez configurado y creado el dispositivo múltiple de bloques DRBD, se procederá a definir los agentes de recursos y las restricciones necesarias para que se cumpla lo siguiente:
 
 - El dispositivo DRBD (**web_data**) funcionará en modo **maestro/esclavo**.
 - El **sistema de archivos** almacenado en el dispositivo **web_data** se montará en el directorio **/mnt**.
@@ -249,7 +243,7 @@ Antes de empezar a configurar, es conveniente dejar abierta una consola monitori
 crm_mon
 ~~~
 
-Mientras tanto, en otra consola, podemos ir configurando los nuevos recursos:
+Mientras tanto, en otra consola, se puede ir configurando los nuevos recursos:
 
 ~~~.sh
 # Configurar el recurso DRBD especificando su nombre
@@ -291,11 +285,7 @@ pcs constraint colocation add APACHE with WEB_FS INFINITY
 pcs constraint order WEB_FS then APACHE
 ~~~
 
->
-
-## Ejercicio 4. Comprobación del funcionamiento
-
-Realiza las siguientes acciones:
+## Documentación a Entregar
 
 - Utiliza el navegador y accede a la dirección **www.example.com**. Recarga la página y comprueba que siempre responde el mismo nodo (nodo maestro).
 - Para el nodo maestro con `pcs node standby` y comprueba el estado del clúster con `crm_mon` en el otro nodo. Verifica que es posible acceder con el navegador al sitio **www.example.com**, pero que ahora el contenido lo sirve el otro nodo.
@@ -309,7 +299,7 @@ pcs constraint delete location-CLUSTER_IP-nodo1.example.com-INFINITY
 
 - Pon en **standby** el nodo maestro y comprueba que, después de ponerlo de nuevo **online**, los recursos se quedan en el otro nodo.
 
-### Desechar el escenario correctamente
+## Desechar el escenario correctamente
 
 Cuando termines de trabajar con el escenario, puedes desecharlo haciendo lo siguiente:
 
